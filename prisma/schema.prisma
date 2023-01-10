@@ -17,23 +17,23 @@ enum ProjectStatus {
 
 model Project {
   id String  @id @default(uuid())
-  nombre String 
-  descripcion String
+  name String 
+  description String
   status ProjectStatus @default(IN_PROGRESS)
 }
 
 model Developer {
   id String  @id @default(uuid())
-  nombre String 
+  name String 
   email String
 }
 
 model Role {
   id String  @id @default(uuid())
-  nombre String
+  name String
 }
 
 model Speciality {
   id String  @id @default(uuid())
-  nombre String
+  name String
 }

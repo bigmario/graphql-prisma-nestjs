@@ -22,8 +22,8 @@ input UpdateProject {
 }
 
 type Query {
-  projects: [Project!]!
-  project(id: ID!): Project
+  AllProjects: [Project!]!
+  Project(id: ID!): Project
 }
 
 type Mutation {

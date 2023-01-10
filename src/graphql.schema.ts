@@ -28,29 +28,12 @@ export class Project {
     id: string;
     name?: Nullable<string>;
     description?: Nullable<string>;
-    status?: Nullable<ProjectStatus>;
-}
-
-export class Developer {
-    id: string;
-    name?: Nullable<string>;
-    email?: Nullable<string>;
-}
-
-export class Role {
-    id: string;
-    name?: Nullable<string>;
-}
-
-export class Speciality {
-    id: string;
-    name?: Nullable<string>;
 }
 
 export abstract class IQuery {
-    abstract projects(): Project[] | Promise<Project[]>;
+    abstract AllProjects(): Project[] | Promise<Project[]>;
 
-    abstract project(id: string): Nullable<Project> | Promise<Nullable<Project>>;
+    abstract Project(id: string): Nullable<Project> | Promise<Nullable<Project>>;
 }
 
 export abstract class IMutation {

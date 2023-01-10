@@ -9,14 +9,14 @@ const pubSub = new PubSub();
 export class ProjectResolvers {
   constructor(private readonly ProjectService: ProjectService) {}
 
-  @Query('Projects')
+  @Query('AllProjects')
   async Projects(): Promise<Project[]> {
-    return this.ProjectService.findAll().then();
+    return this.ProjectService.findAll();
   }
 
   @Query('Project')
   async Project(@Args('id') args: string): Promise<Project> {
-    return this.ProjectService.findOne(args).then();
+    return this.ProjectService.findOne(args);
   }
 
   @Mutation('createProject')
@@ -36,8 +36,8 @@ export class ProjectResolvers {
     return this.ProjectService.delete(args);
   }
 
-  @Subscription('ProjectCreated')
+  @Subscription('projectCreated')
   ProjectCreated() {
-    return pubSub.asyncIterator('ProjectCreated');
+    return pubSub.asyncIterator('projectCreated');
   }
 }
