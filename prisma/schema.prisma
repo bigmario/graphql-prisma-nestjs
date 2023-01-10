@@ -1,0 +1,39 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum ProjectStatus {
+  IN_PROGRESS
+  COMPLETED
+}
+
+model Project {
+  id String  @id @default(uuid())
+  nombre String 
+  descripcion String
+  status ProjectStatus @default(IN_PROGRESS)
+}
+
+model Developer {
+  id String  @id @default(uuid())
+  nombre String 
+  email String
+}
+
+model Role {
+  id String  @id @default(uuid())
+  nombre String
+}
+
+model Speciality {
+  id String  @id @default(uuid())
+  nombre String
+}
