@@ -22,7 +22,7 @@ export class ProjectResolvers {
   @Mutation('createProject')
   async create(@Args('input') args: NewProject): Promise<Project> {
     const createdProject = await this.ProjectService.create(args);
-    pubSub.publish('ProjectCreated', { ProjectCreated: createdProject });
+    pubSub.publish('projectCreated', { ProjectCreated: createdProject });
     return createdProject;
   }
 
@@ -33,7 +33,7 @@ export class ProjectResolvers {
 
   @Mutation('deleteProject')
   async delete(@Args('id') args: string): Promise<Project> {
-    return this.ProjectService.delete(args);
+    return this.ProjectService.delete(args);     
   }
 
   @Subscription('projectCreated')
