@@ -1,4 +1,4 @@
-# Centria Challenge
+# GraphQL Challenge
 
 ## Installation
 
