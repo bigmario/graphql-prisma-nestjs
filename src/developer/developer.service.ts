@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Developer } from '@prisma/client';
+import { developer } from '@prisma/client';
 import { NewDeveloper, UpdateDeveloper } from 'src/graphql.schema';
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -7,7 +7,7 @@ import { PrismaService } from '../prisma/prisma.service';
 export class DeveloperService {
   constructor(private prisma: PrismaService) {}
 
-  async findOne(id: string): Promise<Developer | null> {
+  async findOne(id: string): Promise<developer | null> {
     return this.prisma.developer.findUnique({
       where: {
         id,
@@ -15,17 +15,17 @@ export class DeveloperService {
     });
   }
 
-  async findAll(): Promise<Developer[]> {
+  async findAll(): Promise<developer[]> {
     return this.prisma.developer.findMany({});
   }
 
-  async create(input: NewDeveloper): Promise<Developer> {
+  async create(input: NewDeveloper): Promise<developer> {
     return this.prisma.developer.create({
       data: input,
     });
   }
 
-  async update(params: UpdateDeveloper): Promise<Developer> {
+  async update(params: UpdateDeveloper): Promise<developer> {
     const { id, ...params_without_id } = params;
 
     return this.prisma.developer.update({
@@ -38,7 +38,7 @@ export class DeveloperService {
     });
   }
 
-  async delete(id: string): Promise<Developer> {
+  async delete(id: string): Promise<developer> {
     return this.prisma.developer.delete({
       where: {
         id,

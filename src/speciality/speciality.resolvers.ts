@@ -5,33 +5,33 @@ import { PubSub } from 'graphql-subscriptions';
 
 const pubSub = new PubSub();
 
-@Resolver('Project')
+@Resolver('Speciality')
 export class SpecialityResolvers {
   constructor(private readonly specialityService: SpecialityService) {}
 
-  @Query('AllProjects')
+  @Query('AllSpecialities')
   async Projects(): Promise<Speciality[]> {
     return this.specialityService.findAll();
   }
 
-  @Query('Project')
+  @Query('Speciality')
   async Project(@Args('id') args: string): Promise<Speciality> {
     return this.specialityService.findOne(args);
   }
 
-  @Mutation('createProject')
+  @Mutation('createSpeciality')
   async create(@Args('input') args: NewSpeciality): Promise<Speciality> {
     const createdSpeciality = await this.specialityService.create(args);
     pubSub.publish('specialityCreated', { ProjectCreated: createdSpeciality });
     return createdSpeciality;
   }
 
-  @Mutation('updateProject')
+  @Mutation('updateSpeciality')
   async update(@Args('input') args: UpdateSpeciality): Promise<Speciality> {
     return this.specialityService.update(args);
   }
 
-  @Mutation('deleteProject')
+  @Mutation('deleteSpeciality')
   async delete(@Args('id') args: string): Promise<Speciality> {
     return this.specialityService.delete(args);     
   }

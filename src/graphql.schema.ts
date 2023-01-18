@@ -23,15 +23,6 @@ export class UpdateDeveloper {
     email?: Nullable<string>;
 }
 
-export class NewSpeciality {
-    name: string;
-}
-
-export class UpdateSpeciality {
-    id: string;
-    name?: Nullable<string>;
-}
-
 export class NewProject {
     name: string;
     description: string;
@@ -42,6 +33,15 @@ export class UpdateProject {
     name?: Nullable<string>;
     description?: Nullable<string>;
     status?: Nullable<ProjectStatus>;
+}
+
+export class NewSpeciality {
+    name: string;
+}
+
+export class UpdateSpeciality {
+    id: string;
+    name?: Nullable<string>;
 }
 
 export class Developer {
@@ -55,13 +55,13 @@ export abstract class IQuery {
 
     abstract Developer(id: string): Nullable<Developer> | Promise<Nullable<Developer>>;
 
-    abstract AllSpecialities(): Speciality[] | Promise<Speciality[]>;
-
-    abstract Speciality(id: string): Nullable<Speciality> | Promise<Nullable<Speciality>>;
-
     abstract AllProjects(): Project[] | Promise<Project[]>;
 
     abstract Project(id: string): Nullable<Project> | Promise<Nullable<Project>>;
+
+    abstract AllSpecialities(): Speciality[] | Promise<Speciality[]>;
+
+    abstract Speciality(id: string): Nullable<Speciality> | Promise<Nullable<Speciality>>;
 }
 
 export abstract class IMutation {
@@ -71,30 +71,25 @@ export abstract class IMutation {
 
     abstract deleteDeveloper(id: string): Nullable<Developer> | Promise<Nullable<Developer>>;
 
-    abstract createSpeciality(input: NewSpeciality): Speciality | Promise<Speciality>;
-
-    abstract updateSpeciality(input: UpdateSpeciality): Nullable<Speciality> | Promise<Nullable<Speciality>>;
-
-    abstract deleteSpeciality(id: string): Nullable<Speciality> | Promise<Nullable<Speciality>>;
-
     abstract createProject(input: NewProject): Project | Promise<Project>;
 
     abstract updateProject(input: UpdateProject): Nullable<Project> | Promise<Nullable<Project>>;
 
     abstract deleteProject(id: string): Nullable<Project> | Promise<Nullable<Project>>;
+
+    abstract createSpeciality(input: NewSpeciality): Speciality | Promise<Speciality>;
+
+    abstract updateSpeciality(input: UpdateSpeciality): Nullable<Speciality> | Promise<Nullable<Speciality>>;
+
+    abstract deleteSpeciality(id: string): Nullable<Speciality> | Promise<Nullable<Speciality>>;
 }
 
 export abstract class ISubscription {
     abstract developerCreated(): Nullable<Developer> | Promise<Nullable<Developer>>;
 
-    abstract specialityCreated(): Nullable<Speciality> | Promise<Nullable<Speciality>>;
-
     abstract projectCreated(): Nullable<Project> | Promise<Nullable<Project>>;
-}
 
-export class Speciality {
-    id?: Nullable<string>;
-    name?: Nullable<string>;
+    abstract specialityCreated(): Nullable<Speciality> | Promise<Nullable<Speciality>>;
 }
 
 export class Project {
@@ -102,6 +97,11 @@ export class Project {
     name?: Nullable<string>;
     description?: Nullable<string>;
     status?: Nullable<string>;
+}
+
+export class Speciality {
+    id?: Nullable<string>;
+    name?: Nullable<string>;
 }
 
 type Nullable<T> = T | null;

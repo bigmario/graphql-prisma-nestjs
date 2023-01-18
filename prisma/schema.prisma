@@ -15,36 +15,57 @@ enum ProjectStatus {
   COMPLETED
 }
 
-model Project {
-  id          String         @id @default(uuid())
+model project {
+  id          String              @id @default(uuid())
   name        String
   description String
-  status      ProjectStatus? @default(IN_PROGRESS)
-  developers  Developer[]
-  roles       Role[]
+  status      ProjectStatus?      @default(IN_PROGRESS)
+  developers  project_has_devs[]
+  roles       project_has_roles[]
 }
 
-model Developer {
-  id           String       @id @default(uuid())
-  name         String
-  email        String
-  projectId    String?
-  project      Project?     @relation(fields: [projectId], references: [id])
-  roles        Role[]
-  specialities Speciality[]
+model developer {
+  id       String                @id @default(uuid())
+  name     String
+  email    String
+  projects project_has_devs[]
+  roles    developer_has_roles[]
 }
 
-model Role {
-  id         String      @id @default(uuid())
-  name       String
-  projectId  String?
-  project    Project?    @relation(fields: [projectId], references: [id])
-  developers Developer[]
+model role {
+  id         String                @id @default(uuid())
+  projects   project_has_roles[]
+  developers developer_has_roles[]
+  specId     String?                @unique
+  speciality speciality?            @relation(fields: [specId], references: [id])
 }
 
-model Speciality {
+model speciality {
+  id   String @id @default(uuid())
+  name String
+  role role?
+}
+
+model project_has_devs {
+  id        String     @id @default(uuid())
+  projectId String?
+  project   project?   @relation(fields: [projectId], references: [id])
+  devId     String?
+  dev       developer? @relation(fields: [devId], references: [id])
+}
+
+model project_has_roles {
+  id        String   @id @default(uuid())
+  projectId String?
+  project   project? @relation(fields: [projectId], references: [id])
+  roleId    String?
+  role      role?    @relation(fields: [roleId], references: [id])
+}
+
+model developer_has_roles {
   id          String     @id @default(uuid())
-  name        String
   developerId String?
-  developer   Developer? @relation(fields: [developerId], references: [id])
+  developer   developer? @relation(fields: [developerId], references: [id])
+  roleId      String?
+  role        role?      @relation(fields: [roleId], references: [id])
 }

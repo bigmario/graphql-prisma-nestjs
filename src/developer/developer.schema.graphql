@@ -1,0 +1,33 @@
+## DEVELOPER TYPES
+
+type Developer {
+  id: ID
+  name: String
+  email: String
+}
+
+input NewDeveloper {
+  name: String! 
+  email: String!
+}
+
+input UpdateDeveloper {
+  id: ID!
+  name: String 
+  email: String
+}
+
+type Query {
+  AllDevelopers: [Developer!]!
+  Developer(id: ID!): Developer
+}
+
+type Mutation {
+  createDeveloper(input: NewDeveloper!): Developer!
+  updateDeveloper(input: UpdateDeveloper!): Developer
+  deleteDeveloper(id: ID!): Developer
+}
+
+type Subscription {
+  developerCreated: Developer
+}

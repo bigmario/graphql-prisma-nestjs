@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Project } from '@prisma/client';
+import { project } from '@prisma/client';
 import { NewProject, UpdateProject } from 'src/graphql.schema';
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -7,7 +7,7 @@ import { PrismaService } from '../prisma/prisma.service';
 export class ProjectService {
   constructor(private prisma: PrismaService) {}
 
-  async findOne(id: string): Promise<Project | null> {
+  async findOne(id: string): Promise<project | null> {
     return this.prisma.project.findUnique({
       where: {
         id,
@@ -15,17 +15,17 @@ export class ProjectService {
     });
   }
 
-  async findAll(): Promise<Project[]> {
+  async findAll(): Promise<project[]> {
     return this.prisma.project.findMany({});
   }
 
-  async create(input: NewProject): Promise<Project> {
+  async create(input: NewProject): Promise<project> {
     return this.prisma.project.create({
       data: input,
     });
   }
 
-  async update(params: UpdateProject): Promise<Project> {
+  async update(params: UpdateProject): Promise<project> {
     const { id, ...params_without_id } = params;
 
     return this.prisma.project.update({
@@ -38,7 +38,7 @@ export class ProjectService {
     });
   }
 
-  async delete(id: string): Promise<Project> {
+  async delete(id: string): Promise<project> {
     return this.prisma.project.delete({
       where: {
         id,

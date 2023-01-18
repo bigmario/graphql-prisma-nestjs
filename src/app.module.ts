@@ -5,6 +5,7 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { ConfigModule } from '@nestjs/config';
 import { DeveloperModule } from './developer/developer.module';
 import { SpecialityModule } from './speciality/speciality.module';
+import { ApolloServerPluginLandingPageLocalDefault } from 'apollo-server-core';
 
 @Module({
   imports: [
@@ -16,6 +17,8 @@ import { SpecialityModule } from './speciality/speciality.module';
       driver: ApolloDriver,
       typePaths: ['./**/*.graphql'],
       installSubscriptionHandlers: true,
+      playground: false,
+      plugins: [ApolloServerPluginLandingPageLocalDefault()],
     }),
   ],
 })
