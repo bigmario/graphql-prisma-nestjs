@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { developer } from '@prisma/client';
+import { developer, Prisma } from '@prisma/client';
 import { NewDeveloper, UpdateDeveloper } from 'src/graphql.schema';
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -12,29 +12,87 @@ export class DeveloperService {
       where: {
         id,
       },
+      include: {
+        projects: {
+          include: {
+            project: true
+          }
+        },
+        roles: {
+          include: {
+            role: true
+          }
+        }
+      }
     });
   }
 
   async findAll(): Promise<developer[]> {
-    return this.prisma.developer.findMany({});
+    return this.prisma.developer.findMany({
+      include: {
+        projects: {
+          include: {
+            project: true            
+          }
+        },
+        roles: {
+          include: {
+            role: true
+          }
+        }
+      }
+    });
   }
 
   async create(input: NewDeveloper): Promise<developer> {
-    return this.prisma.developer.create({
+    const newDev = await this.prisma.developer.create({
       data: input,
     });
+
+    return newDev
   }
 
   async update(params: UpdateDeveloper): Promise<developer> {
     const { id, ...params_without_id } = params;
 
+    const updateDeveloperData: Prisma.developerUpdateInput = {
+      name: params_without_id?.name,
+      email: params_without_id?.email,
+      ...(params_without_id?.projectId && {
+        projects: {
+          connectOrCreate: {
+            create: {
+              projectId: params_without_id.projectId
+            },
+            where: {
+              id: params_without_id?.projectId
+            }
+          }
+        } 
+      }),
+      ...(params_without_id?.roleId && {
+        roles: {
+          connectOrCreate: {
+            create: {
+              roleId: params_without_id.roleId
+            },
+            where: {
+              id: params_without_id?.roleId
+            }
+          }
+        } 
+      })      
+    }
+
     return this.prisma.developer.update({
       where: {
-        id,
+       id: id,
       },
-      data: {
-        ...params_without_id,
-      },
+      data: updateDeveloperData,
+      include: {
+        projects: true,
+        roles: true
+      }
     });
   }
 

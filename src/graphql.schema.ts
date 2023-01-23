@@ -21,6 +21,8 @@ export class UpdateDeveloper {
     id: string;
     name?: Nullable<string>;
     email?: Nullable<string>;
+    projectId?: Nullable<string>;
+    roleId?: Nullable<string>;
 }
 
 export class NewProject {
@@ -33,6 +35,8 @@ export class UpdateProject {
     name?: Nullable<string>;
     description?: Nullable<string>;
     status?: Nullable<ProjectStatus>;
+    developerID?: Nullable<string>;
+    roles?: Nullable<string>;
 }
 
 export class NewSpeciality {
@@ -48,6 +52,8 @@ export class Developer {
     id?: Nullable<string>;
     name?: Nullable<string>;
     email?: Nullable<string>;
+    projects?: Nullable<Nullable<Project>[]>;
+    roles?: Nullable<Nullable<Speciality>[]>;
 }
 
 export abstract class IQuery {
@@ -96,7 +102,7 @@ export class Project {
     id: string;
     name?: Nullable<string>;
     description?: Nullable<string>;
-    status?: Nullable<string>;
+    status?: Nullable<ProjectStatus>;
 }
 
 export class Speciality {

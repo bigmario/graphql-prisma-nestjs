@@ -25,17 +25,17 @@ export class ProjectService {
     });
   }
 
-  async update(params: UpdateProject): Promise<project> {
+  async update(params: UpdateProject): Promise<any> {
     const { id, ...params_without_id } = params;
 
-    return this.prisma.project.update({
-      where: {
-        id,
-      },
-      data: {
-        ...params_without_id,
-      },
-    });
+    // return this.prisma.project.update({
+    //   where: {
+    //     id,
+    //   },
+    //   data: {
+    //     ...params_without_id,
+    //   },
+    // });
   }
 
   async delete(id: string): Promise<project> {

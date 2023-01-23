@@ -1,0 +1,113 @@
+## DEVELOPER TYPES
+
+type Developer {
+  id: ID
+  name: String
+  email: String
+  projects: [Project]
+  roles: [Speciality]
+}
+
+input NewDeveloper {
+  name: String! 
+  email: String!
+}
+
+input UpdateDeveloper {
+  id: ID!
+  name: String 
+  email: String
+  projectId: ID
+  roleId: ID
+}
+
+type Query {
+  AllDevelopers: [Developer!]!
+  Developer(id: ID!): Developer
+}
+
+type Mutation {
+  createDeveloper(input: NewDeveloper!): Developer!
+  updateDeveloper(input: UpdateDeveloper!): Developer
+  deleteDeveloper(id: ID!): Developer
+}
+
+type Subscription {
+  developerCreated: Developer
+}
+
+
+## PROJECT TYPES
+
+enum ProjectStatus {
+  IN_PROGRESS
+  COMPLETED
+}
+
+type Project {
+  id: ID!
+  name: String 
+  description: String
+  status: ProjectStatus
+}
+
+input NewProject {
+  name: String! 
+  description: String!
+}
+
+input UpdateProject {
+  id: ID!
+  name: String 
+  description: String
+  status: ProjectStatus
+  developerID: ID
+  roles: ID
+}
+
+type Query {
+  AllProjects: [Project!]!
+  Project(id: ID!): Project
+}
+
+type Mutation {
+  createProject(input: NewProject!): Project!
+  updateProject(input: UpdateProject!): Project
+  deleteProject(id: ID!): Project
+}
+
+type Subscription {
+  projectCreated: Project
+}
+
+## SPECIALITY TYPES
+
+type Speciality {
+  id: ID
+  name: String
+}
+
+input NewSpeciality {
+  name: String!
+}
+
+input UpdateSpeciality {
+  id: ID!
+  name: String
+}
+
+type Query {
+  AllSpecialities: [Speciality!]!
+  Speciality(id: ID!): Speciality
+}
+
+type Mutation {
+  createSpeciality(input: NewSpeciality!): Speciality!
+  updateSpeciality(input: UpdateSpeciality!): Speciality
+  deleteSpeciality(id: ID!): Speciality
+}
+
+type Subscription {
+  specialityCreated: Speciality
+}
+
