@@ -35,8 +35,8 @@ export class UpdateProject {
     name?: Nullable<string>;
     description?: Nullable<string>;
     status?: Nullable<ProjectStatus>;
-    developerID?: Nullable<string>;
-    roles?: Nullable<string>;
+    developerId?: Nullable<string>;
+    roleId?: Nullable<string>;
 }
 
 export class NewSpeciality {

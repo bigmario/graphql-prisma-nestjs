@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { project } from '@prisma/client';
+import { Prisma, project } from '@prisma/client';
 import { NewProject, UpdateProject } from 'src/graphql.schema';
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -16,26 +16,66 @@ export class ProjectService {
   }
 
   async findAll(): Promise<project[]> {
-    return this.prisma.project.findMany({});
+    const projectIncludeOptions: Prisma.projectInclude = {
+      developers: {
+        include: {
+          dev: true
+        }
+      },
+      roles: {
+        include: {
+          role: true
+        }
+      }
+    }
+
+    return this.prisma.project.findMany({
+      include: projectIncludeOptions      
+    });
   }
 
   async create(input: NewProject): Promise<project> {
-    return this.prisma.project.create({
+    const newProject = this.prisma.project.create({
       data: input,
     });
+
+    return newProject
   }
 
   async update(params: UpdateProject): Promise<any> {
     const { id, ...params_without_id } = params;
+    const updateProjectData: Prisma.projectUpdateInput = {
+      name: params_without_id?.name,
+      description: params_without_id?.description,
+      developers: {
+        connectOrCreate: {
+          where: {
+            id: params_without_id?.developerId
+          },
+          create: {
+            devId: params_without_id?.developerId
+          }
+        }
+      },
+      roles: {
+        connectOrCreate: {
+          where: {
+            id: params_without_id?.roleId
+          },
+          create: {
+            roleId: params_without_id?.roleId
+          }
+        }
+      },
+      status: params_without_id.status
+    }
 
-    // return this.prisma.project.update({
-    //   where: {
-    //     id,
-    //   },
-    //   data: {
-    //     ...params_without_id,
-    //   },
-    // });
+    return this.prisma.project.update({
+      where: {
+        id,
+      },
+      data: updateProjectData,
+    });
   }
 
   async delete(id: string): Promise<project> {

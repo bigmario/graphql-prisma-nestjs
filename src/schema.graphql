@@ -61,8 +61,8 @@ input UpdateProject {
   name: String 
   description: String
   status: ProjectStatus
-  developerID: ID
-  roles: ID
+  developerId: ID
+  roleId: ID
 }
 
 type Query {

@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { developer, Prisma } from '@prisma/client';
+import { developer, Prisma, project } from '@prisma/client';
 import { NewDeveloper, UpdateDeveloper } from 'src/graphql.schema';
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -28,24 +28,29 @@ export class DeveloperService {
   }
 
   async findAll(): Promise<developer[]> {
-    return this.prisma.developer.findMany({
-      include: {
-        projects: {
-          include: {
-            project: true            
-          }
-        },
-        roles: {
-          include: {
-            role: true
-          }
+    
+    const devIncludeOptions: Prisma.developerInclude = {
+      projects: {
+        include: {
+          project: true,
+        }
+      },
+      roles: {
+        include: {
+          role: true
         }
       }
+    }
+    const developers = await this.prisma.developer.findMany({
+      include: devIncludeOptions
     });
+    
+    return developers
+    
   }
 
   async create(input: NewDeveloper): Promise<developer> {
-    const newDev = await this.prisma.developer.create({
+    const newDev = this.prisma.developer.create({
       data: input,
     });
 
