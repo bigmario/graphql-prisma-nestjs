@@ -7,30 +7,31 @@ import { PrismaService } from '../prisma/prisma.service';
 export class ProjectService {
   constructor(private prisma: PrismaService) {}
 
+  private projectIncludeOptions: Prisma.projectInclude = {
+    developers: {
+      include: {
+        dev: true
+      }
+    },
+    roles: {
+      include: {
+        role: true
+      }
+    }
+  }
+
   async findOne(id: string): Promise<project | null> {
     return this.prisma.project.findUnique({
       where: {
         id,
       },
+      include: this.projectIncludeOptions
     });
   }
 
   async findAll(): Promise<project[]> {
-    const projectIncludeOptions: Prisma.projectInclude = {
-      developers: {
-        include: {
-          dev: true
-        }
-      },
-      roles: {
-        include: {
-          role: true
-        }
-      }
-    }
-
     return this.prisma.project.findMany({
-      include: projectIncludeOptions      
+      include: this.projectIncludeOptions      
     });
   }
 

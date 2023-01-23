@@ -1,49 +1,39 @@
 import { Injectable } from '@nestjs/common';
 import { developer, Prisma, project } from '@prisma/client';
-import { NewDeveloper, UpdateDeveloper } from 'src/graphql.schema';
+import { Developer, NewDeveloper, UpdateDeveloper } from 'src/graphql.schema';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class DeveloperService {
   constructor(private prisma: PrismaService) {}
 
+  private developerIncludeOptions: Prisma.developerInclude = {
+    projects: {
+      include: {
+        project: true
+      }
+    },
+    roles: true
+  }
+
   async findOne(id: string): Promise<developer | null> {
     return this.prisma.developer.findUnique({
       where: {
         id,
       },
-      include: {
-        projects: {
-          include: {
-            project: true
-          }
-        },
-        roles: {
-          include: {
-            role: true
-          }
-        }
-      }
+      include: this.developerIncludeOptions
     });
   }
 
   async findAll(): Promise<developer[]> {
-    
-    const devIncludeOptions: Prisma.developerInclude = {
-      projects: {
-        include: {
-          project: true,
-        }
-      },
-      roles: {
-        include: {
-          role: true
-        }
-      }
-    }
     const developers = await this.prisma.developer.findMany({
-      include: devIncludeOptions
+      include: this.developerIncludeOptions
     });
+
+    for (const item of developers) {
+      console.log(item['projects']);
+
+    }
     
     return developers
     
