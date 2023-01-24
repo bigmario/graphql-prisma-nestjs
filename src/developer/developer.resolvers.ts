@@ -1,8 +1,9 @@
 import { Resolver, Query, Mutation, Args, Subscription } from '@nestjs/graphql';
 import { DeveloperService } from './developer.service';
-import { Developer, NewDeveloper, UpdateDeveloper } from 'src/graphql.schema';
+import { NewDeveloper, UpdateDeveloper } from 'src/graphql.schema';
 import { PubSub } from 'graphql-subscriptions';
 import { developer } from '@prisma/client';
+import { InternalServerErrorException } from '@nestjs/common';
 
 const pubSub = new PubSub();
 

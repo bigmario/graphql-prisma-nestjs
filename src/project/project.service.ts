@@ -51,17 +51,23 @@ export class ProjectService {
       developers: {
         connectOrCreate: {
           where: {
-            id: params_without_id?.developerId
+            projectId_devId: {
+              devId: params_without_id?.developerId,
+              projectId: id
+            }
           },
           create: {
-            devId: params_without_id?.developerId
+            devId: params_without_id.developerId
           }
         }
       },
       roles: {
         connectOrCreate: {
           where: {
-            id: params_without_id?.roleId
+            projectId_roleId: {
+              projectId: id,
+              roleId: params_without_id?.roleId
+            }
           },
           create: {
             roleId: params_without_id?.roleId
