@@ -36,7 +36,7 @@ export class DeveloperService {
         proj.push(project["project"])
       }
       for (const role of developer['roles'] ) {
-        roles.push(role)
+        roles.push(role["role"])
       }
 
       const response = {
@@ -68,7 +68,7 @@ export class DeveloperService {
           proj.push(project["project"])
         }
         for (const role of item['roles'] ) {
-          roles.push(role)
+          roles.push(role["role"])
         }
         response.push({
           id: item.id,
