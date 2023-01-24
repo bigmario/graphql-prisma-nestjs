@@ -103,6 +103,8 @@ export class Project {
     name?: Nullable<string>;
     description?: Nullable<string>;
     status?: Nullable<ProjectStatus>;
+    developers?: Nullable<Nullable<Developer>[]>;
+    roles?: Nullable<Nullable<Speciality>[]>;
 }
 
 export class Speciality {

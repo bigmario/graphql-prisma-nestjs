@@ -49,6 +49,8 @@ type Project {
   name: String 
   description: String
   status: ProjectStatus
+  developers: [Developer]
+  roles: [Speciality]
 }
 
 input NewProject {

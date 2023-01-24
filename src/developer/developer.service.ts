@@ -7,7 +7,7 @@ import { PrismaService } from '../prisma/prisma.service';
 export class DeveloperService {
   constructor(private prisma: PrismaService) {}
 
-  private developerIncludeOptions: Prisma.developerSelect = {
+  private developerIncludeSelect: Prisma.developerSelect = {
     projects: {
       select: {
         project: true
@@ -25,7 +25,7 @@ export class DeveloperService {
       where: {
         id,
       },
-      include: this.developerIncludeOptions
+      include: this.developerIncludeSelect
     });
 
     if (developer) {
@@ -56,7 +56,7 @@ export class DeveloperService {
   async findAll(): Promise<developer[]> {
     try {
       const developers = await this.prisma.developer.findMany({
-        include: this.developerIncludeOptions
+        include: this.developerIncludeSelect
       });
       
       const response = []
@@ -141,7 +141,7 @@ export class DeveloperService {
        id: id
       },
       data: updateDeveloperData,
-      include: this.developerIncludeOptions
+      include: this.developerIncludeSelect
     });
     
     const dev = await updateDev
