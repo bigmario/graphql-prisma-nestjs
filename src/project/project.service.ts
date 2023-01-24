@@ -37,7 +37,7 @@ export class ProjectService {
       }
       
       for (const role of project['roles'] ) {
-        roles.push(role)
+        roles.push(role['role'])
       }
       
       const response = {
@@ -69,7 +69,7 @@ export class ProjectService {
           dev.push(developer["dev"])
         }
         for (const role of item['roles'] ) {
-          roles.push(role)
+          roles.push(role['role'])
         }
         response.push({
           id: item.id,
@@ -147,6 +147,7 @@ export class ProjectService {
     });
 
     const proj = await updateProject
+       
 
     const dev = []
     const roles = []
@@ -155,7 +156,7 @@ export class ProjectService {
       dev.push(developer['dev'])
     }
     for (const role of proj['roles'] ) {
-      roles.push(role)
+      roles.push(role['role'])
     }
 
     const response = {

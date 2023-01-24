@@ -32,18 +32,11 @@ model developer {
   roles    developer_has_roles[]
 }
 
-model role {
-  id         String                @id @default(uuid())
-  projects   project_has_roles[]
-  developers developer_has_roles[]
-  specId     String?               @unique
-  speciality speciality?           @relation(fields: [specId], references: [id])
-}
-
 model speciality {
   id   String @id @default(uuid())
   name String
-  role role?
+  projects   project_has_roles[]
+  developers developer_has_roles[]
 }
 
 model project_has_devs {
@@ -59,7 +52,7 @@ model project_has_roles {
   projectId String
   project   project @relation(fields: [projectId], references: [id])
   roleId    String
-  role      role    @relation(fields: [roleId], references: [id])
+  role      speciality    @relation(fields: [roleId], references: [id])
 
   @@id([projectId, roleId])
 }
@@ -68,7 +61,7 @@ model developer_has_roles {
   developerId String
   developer   developer @relation(fields: [developerId], references: [id])
   roleId      String
-  role        role     @relation(fields: [roleId], references: [id])
+  role        speciality     @relation(fields: [roleId], references: [id])
 
   @@id([developerId, roleId])
 }
