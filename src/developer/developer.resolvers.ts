@@ -3,21 +3,22 @@ import { DeveloperService } from './developer.service';
 import { NewDeveloper, UpdateDeveloper } from 'src/graphql.schema';
 import { PubSub } from 'graphql-subscriptions';
 import { developer } from '@prisma/client';
-import { InternalServerErrorException } from '@nestjs/common';
 
 const pubSub = new PubSub();
 
 @Resolver('Developer')
 export class DeveloperResolvers {
-  constructor(private readonly developerService: DeveloperService) {}
+  constructor(
+    private readonly developerService: DeveloperService
+  ) {}
 
   @Query('AllDevelopers')
-  async Projects(): Promise<developer[]> {
+  async Developers(): Promise<developer[]> {
     return this.developerService.findAll();
   }
 
   @Query('Developer')
-  async Project(@Args('id') args: string): Promise<developer> {
+  async Developer(@Args('id') args: string): Promise<developer> {
     return this.developerService.findOne(args);
   }
 

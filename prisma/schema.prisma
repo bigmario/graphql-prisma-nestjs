@@ -34,7 +34,7 @@ model developer {
 
 model speciality {
   id   String @id @default(uuid())
-  name String
+  name String @unique
   projects   project_has_roles[]
   developers developer_has_roles[]
 }

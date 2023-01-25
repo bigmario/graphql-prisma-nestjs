@@ -1,11 +1,14 @@
 import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { developer, Prisma } from '@prisma/client';
 import { NewDeveloper, UpdateDeveloper } from 'src/graphql.schema';
+import { ProjectService } from 'src/project/project.service';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class DeveloperService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private projectService: ProjectService) {}
 
   private developerIncludeSelect: Prisma.developerSelect = {
     projects: {
@@ -45,8 +48,7 @@ export class DeveloperService {
         email:  developer.email,
         projects: proj,
         roles: roles
-      }    
-
+      }
       return response
     } else {
       throw new NotFoundException('Developer Not found')
@@ -86,10 +88,76 @@ export class DeveloperService {
        
   }
 
+  async checkDevRolesForProject(devId: string, projectId: string) {
+    const responseDev = []
+    const responseProject = []
+    
+    const devRoles =  await this.prisma.developer.findMany({
+      where: {
+        roles: {
+          some: {
+            developerId: devId
+          }
+        }
+      },
+      select: {
+        roles: {
+          select: {
+            roleId: true
+          }
+        }
+      }
+    })
+
+    for (const rolesObj of devRoles) {
+      for (const roleId of rolesObj["roles"]) {
+        responseDev.push(roleId.roleId)        
+      }
+    }
+
+    const projectsRoles =  await this.prisma.project.findMany({
+      where: {
+        roles: {
+          some: {
+            projectId: projectId
+          }
+        }
+      },
+      select: {
+        roles: {
+          select: {
+            roleId: true
+          }
+        }
+      }
+    })
+    for (const rolesObj of projectsRoles) {
+      for (const roleId of rolesObj["roles"]) {
+        responseProject.push(roleId.roleId)        
+      }
+    }
+
+    const intersection = responseDev.filter(element => responseProject.includes(element));
+    
+    return intersection
+    
+  }
+
   async create(input: NewDeveloper): Promise<developer> {
-    const newDev = this.prisma.developer.create({
-      data: input,
+    const data: Prisma.developerCreateInput = {
+      name: input.name,
+      email: input.email,
+    }
+    const newDev = await this.prisma.developer.create({
+      data: data,
     });
+
+    await this.prisma.developer_has_roles.create({
+      data: {
+        developerId: newDev.id,
+        roleId: input.roleId
+      } 
+    })
 
     return newDev
   }
@@ -129,11 +197,17 @@ export class DeveloperService {
             }
           }
         } 
-      })      
+      }),     
     }
 
     if(!await this.findOne(id)) {
       throw new NotFoundException("Developer not found");      
+    }
+
+    const rolesIntersection = await this.checkDevRolesForProject(id, params_without_id.projectId)
+    
+    if (rolesIntersection.length==0){
+      throw new NotFoundException('Not matching roles')
     }
 
     const updateDev = this.prisma.developer.update({

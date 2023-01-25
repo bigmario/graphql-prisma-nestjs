@@ -15,6 +15,7 @@ export enum ProjectStatus {
 export class NewDeveloper {
     name: string;
     email: string;
+    roleId: string;
 }
 
 export class UpdateDeveloper {
@@ -28,6 +29,7 @@ export class UpdateDeveloper {
 export class NewProject {
     name: string;
     description: string;
+    roleId: string;
 }
 
 export class UpdateProject {

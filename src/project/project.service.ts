@@ -50,7 +50,7 @@ export class ProjectService {
       };
       return response
     } else {
-      throw new NotFoundException('Developer Not found')
+      throw new NotFoundException('Project Not found')
     }
 
     
@@ -89,9 +89,21 @@ export class ProjectService {
   }
 
   async create(input: NewProject): Promise<project> {
-    const newProject = this.prisma.project.create({
-      data: input,
+    const data: Prisma.projectCreateInput = {
+      name: input.name,
+      description: input.description,
+    }
+    const newProject = await this.prisma.project.create({
+      data: data,
+
     });
+
+    await this.prisma.project_has_roles.create({
+      data: {
+        projectId: newProject.id,
+        roleId: input.roleId
+      }
+    })
 
     return newProject
   }
