@@ -3,9 +3,19 @@
 ## Installation
 
 1. Install dependencies: `npm install`
-2. Generate TypeScript type definitions for the GraphQL schema: `npm run generate:typings`
-3. Create sqlite database and create tables: `npx prisma db push`
-4. Start server: `npm run start:dev`
+
+## Run PostgreSQL server via docker compose
+`docker-compose up -d`
+
+## Run App
+Run in development (watch) mode:
+`npm run start:dev`<br>
+or: <br>
+Run in development mode: `npm run start:prod`<br>
+This will:<br>
+1. Generate TypeScript type definitions for the GraphQL schema.
+3. Create sqlite database and create tables via migration.
+4. Start server
 
 ## Graphql Playground
 
