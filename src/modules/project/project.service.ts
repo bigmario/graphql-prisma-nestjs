@@ -1,7 +1,7 @@
 import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { Prisma, project } from '@prisma/client';
 import { NewProject, UpdateProject } from 'src/graphql.schema';
-import { PrismaService } from '../prisma/prisma.service';
+import { PrismaService } from '../../core/prisma/prisma.service';
 
 @Injectable()
 export class ProjectService {
@@ -150,6 +150,12 @@ export class ProjectService {
       throw new NotFoundException("Project not found");      
     }
 
+    const rolesIntersection = await this.checkDevRolesForProject(params_without_id.developerId, id)
+    
+    if (rolesIntersection.length==0){
+      throw new NotFoundException('Not matching roles')
+    }
+
     const updateProject = this.prisma.project.update({
       where: {
         id,
@@ -191,6 +197,61 @@ export class ProjectService {
         id,
       },
     });
+    
+  }
+
+  async checkDevRolesForProject(devId: string, projectId: string) {
+    const responseDev = []
+    const responseProject = []
+    
+    const devRoles =  await this.prisma.developer.findMany({
+      where: {
+        roles: {
+          some: {
+            developerId: devId
+          }
+        }
+      },
+      select: {
+        roles: {
+          select: {
+            roleId: true
+          }
+        }
+      }
+    })
+
+    for (const rolesObj of devRoles) {
+      for (const roleId of rolesObj["roles"]) {
+        responseDev.push(roleId.roleId)        
+      }
+    }
+
+    const projectsRoles =  await this.prisma.project.findMany({
+      where: {
+        roles: {
+          some: {
+            projectId: projectId
+          }
+        }
+      },
+      select: {
+        roles: {
+          select: {
+            roleId: true
+          }
+        }
+      }
+    })
+    for (const rolesObj of projectsRoles) {
+      for (const roleId of rolesObj["roles"]) {
+        responseProject.push(roleId.roleId)        
+      }
+    }
+
+    const intersection = responseProject.filter(element => responseDev.includes(element));
+    
+    return intersection
     
   }
 }

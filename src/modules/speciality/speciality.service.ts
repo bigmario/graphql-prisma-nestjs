@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { speciality } from '@prisma/client';
 import { NewSpeciality, UpdateSpeciality } from 'src/graphql.schema';
-import { PrismaService } from '../prisma/prisma.service';
+import { PrismaService } from '../../core/prisma/prisma.service';
 
 @Injectable()
 export class SpecialityService {

@@ -1,23 +1,25 @@
 ## DEVELOPER TYPES
 
+scalar EmailAddressScalar
+
 type Developer {
   id: ID
   name: String
-  email: String
+  email: EmailAddressScalar
   projects: [Project]
   roles: [Speciality]
 }
 
 input NewDeveloper {
   name: String! 
-  email: String!
+  email: EmailAddressScalar!
   roleId: ID!
 }
 
 input UpdateDeveloper {
   id: ID!
   name: String 
-  email: String
+  email: EmailAddressScalar
   projectId: ID
   roleId: ID
 }

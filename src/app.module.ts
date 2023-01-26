@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
-import { ProjectModule } from './project/project.module';
+import { ProjectModule } from './modules/project/project.module';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { ConfigModule } from '@nestjs/config';
-import { DeveloperModule } from './developer/developer.module';
-import { SpecialityModule } from './speciality/speciality.module';
+import { DeveloperModule } from './modules/developer/developer.module';
+import { SpecialityModule } from './modules/speciality/speciality.module';
 import { ApolloServerPluginLandingPageLocalDefault } from 'apollo-server-core';
 
 @Module({

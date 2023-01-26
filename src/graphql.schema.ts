@@ -14,14 +14,14 @@ export enum ProjectStatus {
 
 export class NewDeveloper {
     name: string;
-    email: string;
+    email: EmailAddressScalar;
     roleId: string;
 }
 
 export class UpdateDeveloper {
     id: string;
     name?: Nullable<string>;
-    email?: Nullable<string>;
+    email?: Nullable<EmailAddressScalar>;
     projectId?: Nullable<string>;
     roleId?: Nullable<string>;
 }
@@ -53,7 +53,7 @@ export class UpdateSpeciality {
 export class Developer {
     id?: Nullable<string>;
     name?: Nullable<string>;
-    email?: Nullable<string>;
+    email?: Nullable<EmailAddressScalar>;
     projects?: Nullable<Nullable<Project>[]>;
     roles?: Nullable<Nullable<Speciality>[]>;
 }
@@ -114,4 +114,5 @@ export class Speciality {
     name?: Nullable<string>;
 }
 
+export type EmailAddressScalar = any;
 type Nullable<T> = T | null;
