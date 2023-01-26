@@ -1,14 +1,11 @@
 import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { developer, Prisma } from '@prisma/client';
 import { NewDeveloper, UpdateDeveloper } from 'src/graphql.schema';
-import { ProjectService } from 'src/modules/project/project.service';
 import { PrismaService } from '../../core/prisma/prisma.service';
 
 @Injectable()
 export class DeveloperService {
-  constructor(
-    private prisma: PrismaService,
-    private projectService: ProjectService) {}
+  constructor(private prisma: PrismaService) {}
 
   private developerIncludeSelect: Prisma.developerSelect = {
     projects: {
