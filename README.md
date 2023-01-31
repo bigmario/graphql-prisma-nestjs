@@ -1,4 +1,18 @@
 # GraphQL Challenge
+CRUD in Typescript with GraphQL and NestJS containing the following models and relationships::
+
+- Project: ID, name, description, status (Enum), has many devs, requires certain Roles.
+- Developer: ID, name, email, can work on several projects, has several Roles
+- Specialty: ID, Name
+
+**Functioning**:
+
+- The system must validate the data entered: Emails, blank texts, etc.
+- The user will be able to register different specialties: Frontend, Backend, Cloud Arquitech, UI, Tester, etc.
+- The user will be able to register several projects
+- The user will be able to relate several devs to a project, the system should throw an error if the dev does not have any of the roles required by the project. Ex: Interface Design Project, it has the Frontend and UI roles, a dev with the backend role cannot enter the project.
+- The user will be able to list projects, being able to filter by Roles within the project and by status. Ex: all projects that require the UI role.
+- The user will be able to list Devs, also being able to filter by Role and also by project.
 
 ## Installation
 
