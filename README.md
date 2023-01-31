@@ -28,7 +28,7 @@ or: <br>
 Run in development mode: `npm run start:prod`<br>
 This will:<br>
 1. Generate TypeScript type definitions for the GraphQL schema.
-3. Create sqlite database and create tables via migration.
+3. Create PostgreSQL database and create tables via migration.
 4. Start server
 
 ## Graphql Playground
