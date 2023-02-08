@@ -86,95 +86,117 @@ export class DeveloperService {
   }
 
   async create(input: NewDeveloper): Promise<developer> {
-    const data: Prisma.developerCreateInput = {
-      name: input.name,
-      email: input.email,
-    }
-    const newDev = await this.prisma.developer.create({
-      data: data,
-    });
-
-    await this.prisma.developer_has_roles.create({
-      data: {
-        developerId: newDev.id,
-        roleId: input.roleId
-      } 
-    })
-
-    return newDev
+    return await this.prisma.$transaction(
+      async () => {
+        try {
+          const data: Prisma.developerCreateInput = {
+            name: input.name,
+            email: input.email,
+          }
+          const newDev = await this.prisma.developer.create({
+            data: data,
+          });
+      
+          await this.prisma.developer_has_roles.create({
+            data: {
+              developerId: newDev.id,
+              roleId: input.roleId
+            } 
+          })
+      
+          return newDev
+        } catch (error) {
+          console.log(error);
+          throw new InternalServerErrorException({
+            message: error,
+          });
+        }
+        
+      });
+    
   }
 
   async update(params: UpdateDeveloper): Promise<developer> {
-    const { id, ...params_without_id } = params;
+    return await this.prisma.$transaction(
+      async () => {
+        try {
+          const { id, ...params_without_id } = params;
 
-    const updateDeveloperData: Prisma.developerUpdateInput = {
-      name: params_without_id?.name,
-      email: params_without_id?.email,
-      ...(params_without_id?.projectId && {
-        projects: {
-          connectOrCreate: {
-            create: {
-              projectId: params_without_id?.projectId
-            },
-            where: {
-              projectId_devId: {
-                devId: id,
-                projectId: params_without_id?.projectId
-              }
-            }
+          const updateDeveloperData: Prisma.developerUpdateInput = {
+            name: params_without_id?.name,
+            email: params_without_id?.email,
+            ...(params_without_id?.projectId && {
+              projects: {
+                connectOrCreate: {
+                  create: {
+                    projectId: params_without_id?.projectId
+                  },
+                  where: {
+                    projectId_devId: {
+                      devId: id,
+                      projectId: params_without_id?.projectId
+                    }
+                  }
+                }
+              } 
+            }),
+            ...(params_without_id?.roleId && {
+              roles: {
+                connectOrCreate: {
+                  create: {
+                    roleId: params_without_id?.roleId
+                  },
+                  where: {
+                    developerId_roleId: {
+                      developerId: id,
+                      roleId: params_without_id?.roleId
+                    }
+                  }
+                }
+              } 
+            }),     
           }
-        } 
-      }),
-      ...(params_without_id?.roleId && {
-        roles: {
-          connectOrCreate: {
-            create: {
-              roleId: params_without_id?.roleId
-            },
-            where: {
-              developerId_roleId: {
-                developerId: id,
-                roleId: params_without_id?.roleId
-              }
-            }
+
+          if(!await this.findOne(id)) {
+            throw new NotFoundException("Developer not found");      
           }
-        } 
-      }),     
-    }
 
-    if(!await this.findOne(id)) {
-      throw new NotFoundException("Developer not found");      
-    }
+          const updateDev = this.prisma.developer.update({
+            where: {
+            id: id
+            },
+            data: updateDeveloperData,
+            include: this.developerIncludeSelect
+          });
+          
+          const dev = await updateDev
 
-    const updateDev = this.prisma.developer.update({
-      where: {
-       id: id
-      },
-      data: updateDeveloperData,
-      include: this.developerIncludeSelect
-    });
-    
-    const dev = await updateDev
+          const proj = []
+          const roles = []
+          
+          for (const project of dev['projects'] ) {
+            proj.push(project['project'])
+          }
+          for (const role of dev['roles'] ) {
+            roles.push(role)
+          }
 
-    const proj = []
-    const roles = []
-    
-    for (const project of dev['projects'] ) {
-      proj.push(project['project'])
-    }
-    for (const role of dev['roles'] ) {
-      roles.push(role)
-    }
-
-    const response = {
-      id: dev.id,
-      name: dev.name,
-      email:  dev.email,
-      projects: proj,
-      roles: roles
-    }
-    
-    return response
+          const response = {
+            id: dev.id,
+            name: dev.name,
+            email:  dev.email,
+            projects: proj,
+            roles: roles
+          }
+          
+          return response
+              } catch (error) {
+                console.log(error);
+                throw new InternalServerErrorException({
+                  message: error,
+                });
+              }
+            });
   }
 
   async delete(id: string): Promise<developer> {
