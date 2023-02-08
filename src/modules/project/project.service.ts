@@ -130,8 +130,8 @@ export class ProjectService {
           const { id, ...params_without_id } = params;
           const rolesIntersection = []
           
-          const projectRoleData: Prisma.project_has_rolesUpsertArgs[] =[]
-          const projectDevsData: Prisma.project_has_devsUpsertArgs[] =[]
+          const projectRoleData=[]
+          const projectDevsData=[]
 
           const updateProjectData: Prisma.projectUpdateInput = {
             name: params_without_id?.name,
@@ -159,51 +159,37 @@ export class ProjectService {
             include: this.projectIncludeSelect
           });
 
-          for (const devId of params_without_id.developersIds) {
-            projectDevsData.push({
-              create: {
+          if (params_without_id.developersIds) {
+            for (const devId of params_without_id.developersIds) {
+              projectDevsData.push({
                 devId,
                 projectId: updateProject.id
-              },
-              update: {
-                devId,
+              })
+            }
+
+            await this.prisma.project_has_devs.updateMany({
+              data: {...projectDevsData},
+              where: {
                 projectId: updateProject.id
               },
-              where: {
-                projectId_devId: {
-                  devId,
-                  projectId: updateProject.id
-                }
-              }
-            })
+            });
           }
 
-          for (const roleId of params_without_id.rolesIds) {
-            projectRoleData.push({
-              create: {
+          if (params_without_id.rolesIds) {
+            for (const roleId of params_without_id.rolesIds) {
+              projectRoleData.push({
                 roleId,
                 projectId: updateProject.id
-              },
-              update: {
-                roleId,
-                projectId: updateProject.id
-              },
+              })
+            }  
+            
+            await this.prisma.project_has_roles.updateMany({
+              data: {...projectRoleData},
               where: {
-                projectId_roleId: {
-                  roleId,
-                  projectId: updateProject.id
-                }
+                projectId: updateProject.id
               }
-            })
+            });
           }
-
-          await this.prisma.project_has_devs.updateMany({
-            data: projectDevsData
-          });
-
-          await this.prisma.project_has_roles.updateMany({
-            data: projectRoleData
-          });
 
           const proj = updateProject
           const dev = []
