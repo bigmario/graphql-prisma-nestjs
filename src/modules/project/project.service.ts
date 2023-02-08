@@ -91,6 +91,8 @@ export class ProjectService {
   async create (input: NewProject): Promise<project> {
     return await this.prisma.$transaction(
       async () => {
+        const projectRoleData: Prisma.project_has_rolesCreateManyArgs["data"] =[]
+        
         try {
           const data: Prisma.projectCreateInput = {
             name: input.name,
@@ -99,12 +101,16 @@ export class ProjectService {
           const newProject = await this.prisma.project.create({
             data: data,
           });
-      
-          await this.prisma.project_has_roles.create({
-            data: {
+
+          for (const roleId of input.rolesIds) {
+            projectRoleData.push({
               projectId: newProject.id,
-              roleId: input.roleId
-            }
+              roleId: roleId
+            })
+          }
+      
+          await this.prisma.project_has_roles.createMany({
+            data: projectRoleData,
           })
           return newProject
         } catch (error) {
@@ -120,83 +126,111 @@ export class ProjectService {
   async update(params: UpdateProject): Promise<any> {
     return await this.prisma.$transaction(
       async () => {
-        const { id, ...params_without_id } = params;
-        const updateProjectData: Prisma.projectUpdateInput = {
-          name: params_without_id?.name,
-          description: params_without_id?.description,
-          ...(params_without_id?.developerId && {
-            developers: {
-              connectOrCreate: {
-                where: {
-                  projectId_devId: {
-                    devId: params_without_id?.developerId,
-                    projectId: id
-                  }
-                },
-                create: {
-                  devId: params_without_id.developerId
-                }
-              }
-            }
-          }),
-          ...(params_without_id?.roleId && {
-            roles: {
-              connectOrCreate: {
-                where: {
-                  projectId_roleId: {
-                    projectId: id,
-                    roleId: params_without_id?.roleId
-                  }
-                },
-                create: {
-                  roleId: params_without_id?.roleId
-                }
-              }
-            }
-          }),
-          status: params_without_id.status
-        }
-
-        if(!await this.findOne(id)) {
-          throw new NotFoundException("Project not found");      
-        }
-
-        const rolesIntersection = await this.checkDevRolesForProject(params_without_id.developerId, id)
-        
-        if (rolesIntersection.length==0){
-          throw new NotFoundException('Not matching roles')
-        }
-
-        const updateProject = this.prisma.project.update({
-          where: {
-            id,
-          },
-          data: updateProjectData,
-          include: this.projectIncludeSelect
-        });
-
-        const proj = await updateProject
+        try {
+          const { id, ...params_without_id } = params;
+          const rolesIntersection = []
           
+          const projectRoleData: Prisma.project_has_rolesUpsertArgs[] =[]
+          const projectDevsData: Prisma.project_has_devsUpsertArgs[] =[]
 
-        const dev = []
-        const roles = []
-        
-        for (const developer of proj['developers'] ) {
-          dev.push(developer['dev'])
-        }
-        for (const role of proj['roles'] ) {
-          roles.push(role['role'])
-        }
+          const updateProjectData: Prisma.projectUpdateInput = {
+            name: params_without_id?.name,
+            description: params_without_id?.description,
+            status: params_without_id.status
+          }
 
-        const response = {
-          id: proj.id,
-          name: proj.name,
-          desription:  proj.description,
-          developers: dev,
-          roles: roles
-        }    
-        
-        return response
+          if(!await this.findOne(id)) {
+            throw new NotFoundException("Project not found");      
+          }
+
+          for (const devId of params_without_id.developersIds) {
+            rolesIntersection.push(await this.checkDevRolesForProject(devId, id)) 
+          }
+          
+          if (rolesIntersection.length==0){
+            throw new NotFoundException('Not matching roles')
+          }
+
+          const updateProject = await this.prisma.project.update({
+            where: {
+              id,
+            },
+            data: updateProjectData,
+            include: this.projectIncludeSelect
+          });
+
+          for (const devId of params_without_id.developersIds) {
+            projectDevsData.push({
+              create: {
+                devId,
+                projectId: updateProject.id
+              },
+              update: {
+                devId,
+                projectId: updateProject.id
+              },
+              where: {
+                projectId_devId: {
+                  devId,
+                  projectId: updateProject.id
+                }
+              }
+            })
+          }
+
+          for (const roleId of params_without_id.rolesIds) {
+            projectRoleData.push({
+              create: {
+                roleId,
+                projectId: updateProject.id
+              },
+              update: {
+                roleId,
+                projectId: updateProject.id
+              },
+              where: {
+                projectId_roleId: {
+                  roleId,
+                  projectId: updateProject.id
+                }
+              }
+            })
+          }
+
+          await this.prisma.project_has_devs.updateMany({
+            data: projectDevsData
+          });
+
+          await this.prisma.project_has_roles.updateMany({
+            data: projectRoleData
+          });
+
+          const proj = updateProject
+          const dev = []
+          const roles = []
+          
+          for (const developer of proj['developers'] ) {
+            dev.push(developer['dev'])
+          }
+          for (const role of proj['roles'] ) {
+            roles.push(role['role'])
+          }
+
+          const response = {
+            id: proj.id,
+            name: proj.name,
+            desription:  proj.description,
+            developers: dev,
+            roles: roles
+          }    
+          
+          return response
+        } catch (error) {
+          console.log(error);
+          throw new InternalServerErrorException({
+            message: error,
+          });
+        }
       }
     );
   }

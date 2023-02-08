@@ -29,7 +29,7 @@ export class UpdateDeveloper {
 export class NewProject {
     name: string;
     description: string;
-    roleId: string;
+    rolesIds: Nullable<string>[];
 }
 
 export class UpdateProject {
@@ -37,8 +37,8 @@ export class UpdateProject {
     name?: Nullable<string>;
     description?: Nullable<string>;
     status?: Nullable<ProjectStatus>;
-    developerId?: Nullable<string>;
-    roleId?: Nullable<string>;
+    developersIds?: Nullable<Nullable<string>[]>;
+    rolesIds?: Nullable<Nullable<string>[]>;
 }
 
 export class NewSpeciality {

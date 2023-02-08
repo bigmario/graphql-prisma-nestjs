@@ -59,7 +59,7 @@ type Project {
 input NewProject {
   name: String! 
   description: String!
-  roleId: ID!
+  rolesIds: [ID]!
 }
 
 input UpdateProject {
@@ -67,8 +67,8 @@ input UpdateProject {
   name: String 
   description: String
   status: ProjectStatus
-  developerId: ID
-  roleId: ID
+  developersIds: [ID]
+  rolesIds: [ID]
 }
 
 type Query {
