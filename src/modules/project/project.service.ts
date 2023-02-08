@@ -159,7 +159,7 @@ export class ProjectService {
             include: this.projectIncludeSelect
           });
 
-          if (params_without_id.developersIds) {
+          if (params_without_id.developersIds || params_without_id.rolesIds) {
             for (const devId of params_without_id.developersIds) {
               projectDevsData.push({
                 devId,
@@ -173,9 +173,7 @@ export class ProjectService {
                 projectId: updateProject.id
               },
             });
-          }
 
-          if (params_without_id.rolesIds) {
             for (const roleId of params_without_id.rolesIds) {
               projectRoleData.push({
                 roleId,
