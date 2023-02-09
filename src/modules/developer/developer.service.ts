@@ -1,11 +1,12 @@
-import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { developer, Prisma } from '@prisma/client';
-import { NewDeveloper, UpdateDeveloper } from 'src/graphql.schema';
+import { DeveloperSearchParams, NewDeveloper, UpdateDeveloper } from 'src/graphql.schema';
 import { PrismaService } from '../../core/prisma/prisma.service';
+import { ProjectService } from '../project/project.service';
 
 @Injectable()
 export class DeveloperService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService, private projectService: ProjectService) {}
 
   private developerIncludeSelect: Prisma.developerSelect = {
     projects: {
@@ -52,9 +53,25 @@ export class DeveloperService {
     }
   }
 
-  async findAll(): Promise<developer[]> {
+  async findAll(params: DeveloperSearchParams): Promise<developer[]> {
     try {
       const developers = await this.prisma.developer.findMany({
+        where: {
+          ...(params?.roleId && {
+            roles: {
+              some: {
+                roleId: params.roleId
+              }
+            }
+          }),
+          ...(params?.projectId && {
+            projects: {
+              some: {
+                projectId: params.projectId
+              }
+            }
+          })
+        },
         include: this.developerIncludeSelect
       });
       
@@ -89,6 +106,7 @@ export class DeveloperService {
     return await this.prisma.$transaction(
       async () => {
         try {
+          const developerRoleData: Prisma.developer_has_rolesCreateManyArgs["data"] =[]
           const data: Prisma.developerCreateInput = {
             name: input.name,
             email: input.email,
@@ -96,12 +114,16 @@ export class DeveloperService {
           const newDev = await this.prisma.developer.create({
             data: data,
           });
-      
-          await this.prisma.developer_has_roles.create({
-            data: {
+
+          for (const roleId of input.rolesIds) {
+            developerRoleData.push({
               developerId: newDev.id,
-              roleId: input.roleId
-            } 
+              roleId: roleId
+            })
+          }
+      
+          await this.prisma.developer_has_roles.createMany({
+            data: developerRoleData
           })
       
           return newDev
@@ -121,55 +143,47 @@ export class DeveloperService {
       async () => {
         try {
           const { id, ...params_without_id } = params;
-
-          const updateDeveloperData: Prisma.developerUpdateInput = {
-            name: params_without_id?.name,
-            email: params_without_id?.email,
-            ...(params_without_id?.projectId && {
-              projects: {
-                connectOrCreate: {
-                  create: {
-                    projectId: params_without_id?.projectId
-                  },
-                  where: {
-                    projectId_devId: {
-                      devId: id,
-                      projectId: params_without_id?.projectId
-                    }
-                  }
-                }
-              } 
-            }),
-            ...(params_without_id?.roleId && {
-              roles: {
-                connectOrCreate: {
-                  create: {
-                    roleId: params_without_id?.roleId
-                  },
-                  where: {
-                    developerId_roleId: {
-                      developerId: id,
-                      roleId: params_without_id?.roleId
-                    }
-                  }
-                }
-              } 
-            }),     
-          }
-
+          const rolesIntersection = []
+          
           if(!await this.findOne(id)) {
             throw new NotFoundException("Developer not found");      
           }
 
-          const updateDev = this.prisma.developer.update({
+          const updateDeveloperData: Prisma.developerUpdateInput = {
+            name: params_without_id?.name,
+            email: params_without_id?.email,
+          }
+
+          const updateDev = await this.prisma.developer.update({
             where: {
-            id: id
+              id: id
             },
             data: updateDeveloperData,
             include: this.developerIncludeSelect
           });
+
+          if (params_without_id.rolesIds) {
+            for (const roleId of params_without_id.rolesIds) {
+              await this.prisma.developer_has_roles.upsert({
+                where: {
+                  developerId_roleId: {
+                    developerId: id,
+                    roleId
+                  }
+                },
+                create: {
+                  roleId,
+                  developerId: id,
+                },
+                update: {
+                  roleId,
+                  developerId: id,
+                }
+              });
+            }
+          }
           
-          const dev = await updateDev
+          const dev = updateDev
 
           const proj = []
           const roles = []

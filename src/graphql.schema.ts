@@ -15,21 +15,25 @@ export enum ProjectStatus {
 export class NewDeveloper {
     name: string;
     email: EmailAddressScalar;
-    roleId: string;
+    rolesIds: Nullable<string>[];
 }
 
 export class UpdateDeveloper {
     id: string;
     name?: Nullable<string>;
     email?: Nullable<EmailAddressScalar>;
-    projectId?: Nullable<string>;
+    rolesIds?: Nullable<Nullable<string>[]>;
+}
+
+export class DeveloperSearchParams {
     roleId?: Nullable<string>;
+    projectId?: Nullable<string>;
 }
 
 export class NewProject {
     name: string;
     description: string;
-    roleId: string;
+    rolesIds: Nullable<string>[];
 }
 
 export class UpdateProject {
@@ -37,8 +41,13 @@ export class UpdateProject {
     name?: Nullable<string>;
     description?: Nullable<string>;
     status?: Nullable<ProjectStatus>;
-    developerId?: Nullable<string>;
+    developersIds?: Nullable<Nullable<string>[]>;
+    rolesIds?: Nullable<Nullable<string>[]>;
+}
+
+export class ProjectSearchParams {
     roleId?: Nullable<string>;
+    status?: Nullable<ProjectStatus>;
 }
 
 export class NewSpeciality {
@@ -59,11 +68,11 @@ export class Developer {
 }
 
 export abstract class IQuery {
-    abstract AllDevelopers(): Developer[] | Promise<Developer[]>;
+    abstract AllDevelopers(params?: Nullable<DeveloperSearchParams>): Developer[] | Promise<Developer[]>;
 
     abstract Developer(id: string): Nullable<Developer> | Promise<Nullable<Developer>>;
 
-    abstract AllProjects(): Project[] | Promise<Project[]>;
+    abstract AllProjects(params?: Nullable<ProjectSearchParams>): Project[] | Promise<Project[]>;
 
     abstract Project(id: string): Nullable<Project> | Promise<Nullable<Project>>;
 

@@ -19,7 +19,7 @@ CRUD in Typescript with GraphQL and NestJS containing the following models and r
 1. Install dependencies: `npm install`
 
 ## Run PostgreSQL server via docker compose
-`docker-compose up -d`
+`docker compose up -d`
 
 ## Run App
 Run in development (watch) mode:

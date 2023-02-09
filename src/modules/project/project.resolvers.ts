@@ -1,6 +1,6 @@
 import { Resolver, Query, Mutation, Args, Subscription } from '@nestjs/graphql';
 import { ProjectService } from './project.service';
-import { NewProject, UpdateProject } from 'src/graphql.schema';
+import { NewProject, ProjectSearchParams, UpdateProject } from 'src/graphql.schema';
 import { PubSub } from 'graphql-subscriptions';
 import { project } from '@prisma/client';
 
@@ -11,8 +11,8 @@ export class ProjectResolvers {
   constructor(private readonly ProjectService: ProjectService) {}
 
   @Query('AllProjects')
-  async Projects(): Promise<project[]> {
-    return this.ProjectService.findAll();
+  async Projects(@Args('params') params: ProjectSearchParams): Promise<project[]> {
+    return this.ProjectService.findAll(params);
   }
 
   @Query('Project')

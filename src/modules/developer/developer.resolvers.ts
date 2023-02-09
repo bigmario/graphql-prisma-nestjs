@@ -1,6 +1,6 @@
 import { Resolver, Query, Mutation, Args, Subscription } from '@nestjs/graphql';
 import { DeveloperService } from './developer.service';
-import { NewDeveloper, UpdateDeveloper } from 'src/graphql.schema';
+import { DeveloperSearchParams, NewDeveloper, UpdateDeveloper } from 'src/graphql.schema';
 import { PubSub } from 'graphql-subscriptions';
 import { developer } from '@prisma/client';
 
@@ -13,8 +13,8 @@ export class DeveloperResolvers {
   ) {}
 
   @Query('AllDevelopers')
-  async Developers(): Promise<developer[]> {
-    return this.developerService.findAll();
+  async Developers(@Args('params') params: DeveloperSearchParams): Promise<developer[]> {
+    return this.developerService.findAll(params);
   }
 
   @Query('Developer')

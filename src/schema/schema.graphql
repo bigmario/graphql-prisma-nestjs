@@ -13,19 +13,23 @@ type Developer {
 input NewDeveloper {
   name: String! 
   email: EmailAddressScalar!
-  roleId: ID!
+  rolesIds: [ID]!
 }
 
 input UpdateDeveloper {
   id: ID!
   name: String 
   email: EmailAddressScalar
-  projectId: ID
-  roleId: ID
+  rolesIds: [ID]
+}
+
+input DeveloperSearchParams {
+  roleId: String
+  projectId: String
 }
 
 type Query {
-  AllDevelopers: [Developer!]!
+  AllDevelopers(params: DeveloperSearchParams): [Developer!]!
   Developer(id: ID!): Developer
 }
 
@@ -59,7 +63,7 @@ type Project {
 input NewProject {
   name: String! 
   description: String!
-  roleId: ID!
+  rolesIds: [ID]!
 }
 
 input UpdateProject {
@@ -67,12 +71,17 @@ input UpdateProject {
   name: String 
   description: String
   status: ProjectStatus
-  developerId: ID
-  roleId: ID
+  developersIds: [ID]
+  rolesIds: [ID]
+}
+
+input ProjectSearchParams {
+  roleId: String
+  status: ProjectStatus
 }
 
 type Query {
-  AllProjects: [Project!]!
+  AllProjects(params: ProjectSearchParams): [Project!]!
   Project(id: ID!): Project
 }
 
