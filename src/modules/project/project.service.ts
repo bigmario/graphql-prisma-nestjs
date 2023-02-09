@@ -39,7 +39,8 @@ export class ProjectService {
       for (const role of project['roles'] ) {
         roles.push(role['role'])
       }
-      
+
+            
       const response = {
         id: project.id,
         name: project.name,
@@ -89,7 +90,8 @@ export class ProjectService {
           name: item.name,
           description:  item.description,
           developers: dev,
-          roles: roles
+          roles: roles,
+          status: item.status
         });
       }
       
