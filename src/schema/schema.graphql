@@ -71,8 +71,13 @@ input UpdateProject {
   rolesIds: [ID]
 }
 
+input ProjectSearchParams {
+  roleId: String
+  status: ProjectStatus
+}
+
 type Query {
-  AllProjects: [Project!]!
+  AllProjects(params: ProjectSearchParams): [Project!]!
   Project(id: ID!): Project
 }
 

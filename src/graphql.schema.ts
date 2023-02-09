@@ -41,6 +41,11 @@ export class UpdateProject {
     rolesIds?: Nullable<Nullable<string>[]>;
 }
 
+export class ProjectSearchParams {
+    roleId?: Nullable<string>;
+    status?: Nullable<ProjectStatus>;
+}
+
 export class NewSpeciality {
     name: string;
 }
@@ -63,7 +68,7 @@ export abstract class IQuery {
 
     abstract Developer(id: string): Nullable<Developer> | Promise<Nullable<Developer>>;
 
-    abstract AllProjects(): Project[] | Promise<Project[]>;
+    abstract AllProjects(params?: Nullable<ProjectSearchParams>): Project[] | Promise<Project[]>;
 
     abstract Project(id: string): Nullable<Project> | Promise<Nullable<Project>>;
 

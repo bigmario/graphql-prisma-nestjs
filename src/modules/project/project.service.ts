@@ -1,6 +1,6 @@
-import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { Prisma, project } from '@prisma/client';
-import { NewProject, UpdateProject } from 'src/graphql.schema';
+import { NewProject, ProjectSearchParams, UpdateProject } from 'src/graphql.schema';
 import { PrismaService } from '../../core/prisma/prisma.service';
 
 @Injectable()
@@ -56,11 +56,24 @@ export class ProjectService {
     
   }
 
-  async findAll(): Promise<project[]> {
+  async findAll(params: ProjectSearchParams): Promise<project[]> {
     try {
       const projects = await this.prisma.project.findMany({
+        where: {
+          ...(params?.roleId && {
+            roles: {
+              some: {
+                roleId: params.roleId
+              }
+            }
+          }),
+          ...(params?.status && {
+            status: params.status
+          })
+        },
         include: this.projectIncludeSelect      
       });
+
       const response = []
       for (const item of projects) {
         const dev = []
@@ -129,9 +142,6 @@ export class ProjectService {
         try {
           const { id, ...params_without_id } = params;
           const rolesIntersection = []
-          
-          const projectRoleData=[]
-          const projectDevsData=[]
 
           const updateProjectData: Prisma.projectUpdateInput = {
             name: params_without_id?.name,
@@ -140,15 +150,15 @@ export class ProjectService {
           }
 
           if(!await this.findOne(id)) {
-            throw new NotFoundException("Project not found");      
+            throw new NotFoundException();      
           }
 
           for (const devId of params_without_id.developersIds) {
             rolesIntersection.push(await this.checkDevRolesForProject(devId, id)) 
-          }
+          }          
           
-          if (rolesIntersection.length==0){
-            throw new NotFoundException('Not matching roles')
+          if (rolesIntersection.flat().length==0){
+            throw new ConflictException()
           }
 
           const updateProject = await this.prisma.project.update({
@@ -159,34 +169,46 @@ export class ProjectService {
             include: this.projectIncludeSelect
           });
 
-          if (params_without_id.developersIds || params_without_id.rolesIds) {
+          if (params_without_id.developersIds) {
             for (const devId of params_without_id.developersIds) {
-              projectDevsData.push({
-                devId,
-                projectId: updateProject.id
-              })
+              await this.prisma.project_has_devs.upsert({
+                where: {
+                  projectId_devId: {
+                    devId,
+                    projectId: id
+                  }  
+                },
+                create: {
+                  devId,
+                  projectId: id
+                },
+                update: {
+                  devId,
+                  projectId: id
+                }
+              });              
             }
+          }
 
-            await this.prisma.project_has_devs.updateMany({
-              data: {...projectDevsData},
-              where: {
-                projectId: updateProject.id
-              },
-            });
-
+          if (params_without_id.rolesIds) {
             for (const roleId of params_without_id.rolesIds) {
-              projectRoleData.push({
-                roleId,
-                projectId: updateProject.id
-              })
-            }  
-            
-            await this.prisma.project_has_roles.updateMany({
-              data: {...projectRoleData},
-              where: {
-                projectId: updateProject.id
-              }
-            });
+              await this.prisma.project_has_roles.upsert({
+                where: {
+                  projectId_roleId: {
+                    projectId: id,
+                    roleId
+                  }
+                },
+                create: {
+                  roleId,
+                  projectId: updateProject.id
+                },
+                update: {
+                  roleId,
+                  projectId: updateProject.id
+                }
+              });
+            }
           }
 
           const proj = updateProject
@@ -210,10 +232,16 @@ export class ProjectService {
           
           return response
         } catch (error) {
-          console.log(error);
-          throw new InternalServerErrorException({
-            message: error,
-          });
+          console.log(`[PROJ.SRV]:${error}`);
+          if (error.status===404 ) {
+            throw new NotFoundException("Project not found");
+          } else if (error.status===409 ) {
+            throw new ConflictException('Not matching roles between Project and one or more Devs')
+          } else {
+            throw new InternalServerErrorException({
+              message: error,
+            });
+          }
         }
       }
     );
