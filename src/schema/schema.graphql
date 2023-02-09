@@ -13,15 +13,14 @@ type Developer {
 input NewDeveloper {
   name: String! 
   email: EmailAddressScalar!
-  roleId: ID!
+  rolesIds: [ID]!
 }
 
 input UpdateDeveloper {
   id: ID!
   name: String 
   email: EmailAddressScalar
-  projectId: ID
-  roleId: ID
+  rolesIds: [ID]
 }
 
 input DeveloperSearchParams {

@@ -142,6 +142,10 @@ export class ProjectService {
         try {
           const { id, ...params_without_id } = params;
           const rolesIntersection = []
+          
+          if(!await this.findOne(id)) {
+            throw new NotFoundException();      
+          }
 
           const updateProjectData: Prisma.projectUpdateInput = {
             name: params_without_id?.name,
@@ -149,17 +153,17 @@ export class ProjectService {
             status: params_without_id.status
           }
 
-          if(!await this.findOne(id)) {
-            throw new NotFoundException();      
+          if (params_without_id.developersIds) {
+            for (const devId of params_without_id.developersIds) {
+              rolesIntersection.push(await this.checkDevRolesForProject(devId, id)) 
+            }
+            
+            if (rolesIntersection.flat().length==0){
+              throw new ConflictException()
+            }
           }
 
-          for (const devId of params_without_id.developersIds) {
-            rolesIntersection.push(await this.checkDevRolesForProject(devId, id)) 
-          }          
           
-          if (rolesIntersection.flat().length==0){
-            throw new ConflictException()
-          }
 
           const updateProject = await this.prisma.project.update({
             where: {

@@ -15,15 +15,14 @@ export enum ProjectStatus {
 export class NewDeveloper {
     name: string;
     email: EmailAddressScalar;
-    roleId: string;
+    rolesIds: Nullable<string>[];
 }
 
 export class UpdateDeveloper {
     id: string;
     name?: Nullable<string>;
     email?: Nullable<EmailAddressScalar>;
-    projectId?: Nullable<string>;
-    roleId?: Nullable<string>;
+    rolesIds?: Nullable<Nullable<string>[]>;
 }
 
 export class DeveloperSearchParams {
