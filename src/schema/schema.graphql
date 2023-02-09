@@ -24,8 +24,13 @@ input UpdateDeveloper {
   roleId: ID
 }
 
+input DeveloperSearchParams {
+  roleId: String
+  projectId: String
+}
+
 type Query {
-  AllDevelopers: [Developer!]!
+  AllDevelopers(params: DeveloperSearchParams): [Developer!]!
   Developer(id: ID!): Developer
 }
 

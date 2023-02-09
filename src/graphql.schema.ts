@@ -26,6 +26,11 @@ export class UpdateDeveloper {
     roleId?: Nullable<string>;
 }
 
+export class DeveloperSearchParams {
+    roleId?: Nullable<string>;
+    projectId?: Nullable<string>;
+}
+
 export class NewProject {
     name: string;
     description: string;
@@ -64,7 +69,7 @@ export class Developer {
 }
 
 export abstract class IQuery {
-    abstract AllDevelopers(): Developer[] | Promise<Developer[]>;
+    abstract AllDevelopers(params?: Nullable<DeveloperSearchParams>): Developer[] | Promise<Developer[]>;
 
     abstract Developer(id: string): Nullable<Developer> | Promise<Nullable<Developer>>;
 

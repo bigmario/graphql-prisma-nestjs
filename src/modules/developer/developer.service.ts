@@ -1,6 +1,6 @@
 import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { developer, Prisma } from '@prisma/client';
-import { NewDeveloper, UpdateDeveloper } from 'src/graphql.schema';
+import { DeveloperSearchParams, NewDeveloper, UpdateDeveloper } from 'src/graphql.schema';
 import { PrismaService } from '../../core/prisma/prisma.service';
 
 @Injectable()
@@ -52,9 +52,25 @@ export class DeveloperService {
     }
   }
 
-  async findAll(): Promise<developer[]> {
+  async findAll(params: DeveloperSearchParams): Promise<developer[]> {
     try {
       const developers = await this.prisma.developer.findMany({
+        where: {
+          ...(params?.roleId && {
+            roles: {
+              some: {
+                roleId: params.roleId
+              }
+            }
+          }),
+          ...(params?.projectId && {
+            projects: {
+              some: {
+                projectId: params.projectId
+              }
+            }
+          })
+        },
         include: this.developerIncludeSelect
       });
       
